@@ -9,7 +9,6 @@ import { Colors, Metrics } from '../Themes'
 import styles from './Styles/MainScreenStyle'
 
 const GoogleApiKey = 'AIzaSyBmHm0PSUCOf1mojAVKAXhcwoUPGX01_ck'
-// const YelpClientId = 'CR4GaSeFdjfQJEvBbncxwg'
 const YelpApiKey = 'moxxDVrbenac-0BuwwyR-Y9va06TgfQevLDy1xO-aRMpDorSGJiaByFdg5PfW6vGcJD5AJo__rjm9kS75-R3j3JFwaBScH41QVno757GsgoWD4nLqsCmq8fUH5cvW3Yx'
 
 class MainScreen extends Component {
@@ -66,7 +65,6 @@ class MainScreen extends Component {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      console.tron.log(responseJson)
       this.getNearbyGooglePlaces(responseJson.businesses)
       this.setState({
         nearbyPlaces: responseJson.businesses,
@@ -79,7 +77,6 @@ class MainScreen extends Component {
   }
 
   getNearbyGooglePlaces = async (businesses) => {
-    console.tron.log(businesses)
     var nearbyGooglePlaces = []
     await Promise.all(businesses.map(async place => {
       var response = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${place.name}&location=${place.coordinates.latitude},${place.coordinates.longitude}&radius=500&key=${GoogleApiKey}`)

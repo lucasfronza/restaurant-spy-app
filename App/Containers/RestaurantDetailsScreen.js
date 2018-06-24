@@ -9,7 +9,6 @@ import { Colors, Metrics } from '../Themes'
 import styles from './Styles/RestaurantDetailsScreenStyle'
 
 const GoogleApiKey = 'AIzaSyBmHm0PSUCOf1mojAVKAXhcwoUPGX01_ck'
-// const YelpClientId = 'CR4GaSeFdjfQJEvBbncxwg'
 const YelpApiKey = 'moxxDVrbenac-0BuwwyR-Y9va06TgfQevLDy1xO-aRMpDorSGJiaByFdg5PfW6vGcJD5AJo__rjm9kS75-R3j3JFwaBScH41QVno757GsgoWD4nLqsCmq8fUH5cvW3Yx'
 
 class RestaurantDetailsScreen extends Component {
@@ -37,7 +36,6 @@ class RestaurantDetailsScreen extends Component {
     fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${this.state.googlePlace.place_id}&key=${GoogleApiKey}`)
     .then((response) => response.json())
     .then((responseJson) => {
-      console.tron.log({gp: responseJson})
       if (responseJson.status === 'OK') {
         this.setState({
           googlePlaceDetail: responseJson.result
@@ -57,7 +55,6 @@ class RestaurantDetailsScreen extends Component {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      console.tron.log({yp: responseJson})
       this.setState({
         yelpPlaceDetail: responseJson
       })
@@ -75,7 +72,6 @@ class RestaurantDetailsScreen extends Component {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      console.tron.log({yr: responseJson})
       this.setState({
         yelpPlaceReviews: responseJson.reviews
       })
