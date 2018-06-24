@@ -10,6 +10,8 @@
 
 ## Demo:
 
+GIF: [Gif link](https://www.dropbox.com/s/7aie4cjj448uudz/demo.gif?dl=0)
+
 | Screenshot 1 | Screenshot 2 | Screenshot 3 |
 | ------------ | ------------ | ------------ |
 | ![Screenshot 1](demo/screenshot_1.png) | ![Screenshot 2](demo/screenshot_2.png) | ![Screenshot 3](demo/screenshot_3.png) |
