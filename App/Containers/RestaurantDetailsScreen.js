@@ -22,13 +22,15 @@ class RestaurantDetailsScreen extends Component {
       googlePlace: googlePlace,
       yelpPlace: yelpPlace,
       googlePlaceDetail: null,
-      yelpPlaceDetail: null
+      yelpPlaceDetail: null,
+      yelpPlaceReviews: null
     }
   }
 
   componentDidMount () {
     this.getGooglePlaceDetail()
     this.getYelpPlaceDetail()
+    this.getYelpPlaceReviews()
   }
 
   getGooglePlaceDetail = () => {
@@ -65,6 +67,24 @@ class RestaurantDetailsScreen extends Component {
     })
   }
 
+  getYelpPlaceReviews = () => {
+    fetch(`https://api.yelp.com/v3/businesses/${this.state.yelpPlace.id}/reviews`, {
+      headers: {
+        Authorization: `Bearer ${YelpApiKey}`
+      }
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      console.tron.log({yr: responseJson})
+      this.setState({
+        yelpPlaceReviews: responseJson.reviews
+      })
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+  }
+
   render () {
     return (
       <View style={styles.mainContainer}>
@@ -94,8 +114,45 @@ class RestaurantDetailsScreen extends Component {
             </View>
             <View style={{}}>
               <Text style={styles.sectionTitle}>REVIEWS</Text>
-              {this.state.googlePlaceDetail
-                ? null
+              {this.state.googlePlaceDetail && this.state.yelpPlaceDetail
+                ? <View>
+                  <Text style={{marginLeft: 30, marginBottom: 5, marginTop: 15}}>Google Rating: {this.state.googlePlaceDetail.rating}</Text>
+                  <ScrollView horizontal>
+                    {this.state.googlePlaceDetail.reviews && this.state.googlePlaceDetail.reviews.map((review, reviewIndex) => (
+                      <View style={{width: Metrics.screenWidth * 0.3, alignItems: 'center'}} key={reviewIndex}>
+                        <Image
+                          style={{
+                            width: Metrics.screenWidth * 0.2,
+                            height: Metrics.screenWidth * 0.2,
+                            marginHorizontal: 5
+                          }}
+                          source={{uri: review.profile_photo_url}}
+                          resizeMode='cover'
+                        />
+                        <Text style={{textAlign: 'center', marginTop: 3}}>{review.author_name}</Text>
+                        <Text style={{textAlign: 'center', marginTop: 3}}>Rating: {review.rating}</Text>
+                      </View>
+                    ))}
+                  </ScrollView>
+                  <Text style={{marginLeft: 30, marginBottom: 5, marginTop: 15}}>Yelp Rating: {this.state.yelpPlaceDetail.rating}</Text>
+                  <ScrollView horizontal>
+                    {this.state.yelpPlaceReviews && this.state.yelpPlaceReviews.map((review) => (
+                      <View style={{width: Metrics.screenWidth * 0.3, alignItems: 'center'}} key={review.id}>
+                        <Image
+                          style={{
+                            width: Metrics.screenWidth * 0.2,
+                            height: Metrics.screenWidth * 0.2,
+                            marginHorizontal: 5
+                          }}
+                          source={{uri: review.user.image_url}}
+                          resizeMode='cover'
+                        />
+                        <Text style={{textAlign: 'center', marginTop: 3}}>{review.user.name}</Text>
+                        <Text style={{textAlign: 'center', marginTop: 3}}>Rating: {review.rating}</Text>
+                      </View>
+                    ))}
+                  </ScrollView>
+                </View>
                 : <ActivityIndicator size='large' color={Colors.red} />}
             </View>
             <View style={{}}>
