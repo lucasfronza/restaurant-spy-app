@@ -120,17 +120,20 @@ class MainScreen extends Component {
         </View>
         <ScrollView>
           <KeyboardAvoidingView behavior='position'>
-            {this.state.nearbyPlaces.map(place => {
-              var googlePlace = this.state.nearbyGooglePlaces.find(p => p.yelpPlaceId === place.id) != null ? this.state.nearbyGooglePlaces.find(p => p.yelpPlaceId === place.id).place : null
+            {this.state.nearbyPlaces.map(yelpPlace => {
+              var googlePlace = this.state.nearbyGooglePlaces.find(p => p.yelpPlaceId === yelpPlace.id) != null ? this.state.nearbyGooglePlaces.find(p => p.yelpPlaceId === yelpPlace.id).place : null
               return (
-                <View style={{marginHorizontal: 15, marginVertical: 15}} key={place.id}>
+                <View style={{marginHorizontal: 15, marginVertical: 15}} key={yelpPlace.id}>
                   <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <Text style={{fontSize: 16}}>{place.name.length <= 30 ? place.name : place.name.substring(0, 30) + '...' }</Text>
+                    <Text style={{fontSize: 16}}>{yelpPlace.name.length <= 30 ? yelpPlace.name : yelpPlace.name.substring(0, 30) + '...' }</Text>
                     {googlePlace && googlePlace.opening_hours && googlePlace.opening_hours.open_now != null ? <Text style={{color: googlePlace.opening_hours.open_now ? 'green' : 'red', fontSize: 16}}>
                       {googlePlace.opening_hours.open_now ? 'OPEN' : 'CLOSED'}
                     </Text> : <Text style={{fontSize: 16}}>
                       NO INFO
                     </Text>}
+                  </View>
+                  <View style={{flexDirection: 'row', marginTop: 5}}>
+                    {yelpPlace.categories.map(category => (<View style={{backgroundColor: '#A7A7A7', padding: 3, borderRadius: 3, marginRight: 5}} key={category.alias}><Text style={{color: Colors.snow}}>{category.title}</Text></View>))}
                   </View>
                   <View style={{flexDirection: 'row', marginTop: 5}}>
                     <Image
@@ -149,7 +152,7 @@ class MainScreen extends Component {
                       <Text style={{fontSize: 13}}>
                         {googlePlace && googlePlace.formatted_address}
                       </Text>
-                      <TouchableOpacity style={{backgroundColor: Colors.red, justifyContent: 'center', alignItems: 'center'}} onPress={() => { this.props.navigation.navigate('RestaurantDetailsScreen', { place: place }) }}>
+                      <TouchableOpacity style={{backgroundColor: Colors.red, justifyContent: 'center', alignItems: 'center'}} onPress={() => { this.props.navigation.navigate('RestaurantDetailsScreen', { yelpPlace: yelpPlace, googlePlace: googlePlace }) }}>
                         <Text style={{color: Colors.snow, textAlign: 'center', padding: 10}}>SEE MORE</Text>
                       </TouchableOpacity>
                     </View>
