@@ -8,6 +8,16 @@
 
 * Then, User is able to select a restaurant and check pictures and reviews from both Google Places and Yelp.
 
+## Demo:
+
+| Screenshot 1 | Screenshot 2 | Screenshot 3 |
+| ------------ | ------------ | ------------ |
+| ![Screenshot 1](demo/screenshot_1.png) | ![Screenshot 2](demo/screenshot_2.png) | ![Screenshot 3](demo/screenshot_3.png) |
+
+| Screenshot 4 | Screenshot 5 | Screenshot 6 |
+| ------------ | ------------ | ------------ |
+| ![Screenshot 4](demo/screenshot_4.png) | ![Screenshot 5](demo/screenshot_5.png) | ![Screenshot 6](demo/screenshot_6.png) |
+
 
 ## Running:
 1. Clone repo
