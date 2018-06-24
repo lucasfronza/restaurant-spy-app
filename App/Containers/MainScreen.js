@@ -9,6 +9,8 @@ import { Colors, Metrics } from '../Themes'
 import styles from './Styles/MainScreenStyle'
 
 const GoogleApiKey = 'AIzaSyBmHm0PSUCOf1mojAVKAXhcwoUPGX01_ck'
+// const YelpClientId = 'CR4GaSeFdjfQJEvBbncxwg'
+const YelpApiKey = 'moxxDVrbenac-0BuwwyR-Y9va06TgfQevLDy1xO-aRMpDorSGJiaByFdg5PfW6vGcJD5AJo__rjm9kS75-R3j3JFwaBScH41QVno757GsgoWD4nLqsCmq8fUH5cvW3Yx'
 
 class MainScreen extends Component {
   constructor (props) {
@@ -16,13 +18,16 @@ class MainScreen extends Component {
 
     this.state = {
       currentLocation: null,
-      nearbyPlaces: []
+      nearbyPlaces: [],
+      nearbyYelpPlaces: [],
+      nearbyGooglePlaces: []
     }
   }
 
   componentDidMount () {
     this.getCurrentLocation()
-    this.getNearbyPlaces()
+    // this.getNearbyPlaces()
+    this.getNearbyYelpPlaces()
   }
 
   getCurrentLocation = () => {
@@ -71,6 +76,42 @@ class MainScreen extends Component {
     })
   }
 
+  getNearbyYelpPlaces = () => {
+    fetch(`https://api.yelp.com/v3/businesses/search?latitude=-23.582132&longitude=-46.700234&limit=5`, {
+      headers: {
+        Authorization: `Bearer ${YelpApiKey}`
+      }
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      console.tron.log(responseJson)
+      this.getNearbyGooglePlaces(responseJson.businesses)
+      this.setState({
+        nearbyPlaces: responseJson.businesses,
+        nearbyYelpPlaces: responseJson.businesses
+      })
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+  }
+
+  getNearbyGooglePlaces = async (businesses) => {
+    console.tron.log(businesses)
+    var nearbyGooglePlaces = []
+    await Promise.all(businesses.map(async place => {
+      var response = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${place.name}&location=${place.coordinates.latitude},${place.coordinates.longitude}&radius=500&key=${GoogleApiKey}`)
+      var responseJson = await response.json()
+      if (responseJson.status === 'OK' && responseJson.results.length >= 1) {
+        nearbyGooglePlaces.push({
+          yelpPlaceId: place.id,
+          place: responseJson.results[0]
+        })
+      }
+    }))
+    this.setState({ nearbyGooglePlaces: nearbyGooglePlaces })
+  }
+
   render () {
     return (
       <View style={styles.mainContainer}>
@@ -79,40 +120,43 @@ class MainScreen extends Component {
         </View>
         <ScrollView>
           <KeyboardAvoidingView behavior='position'>
-            {this.state.nearbyPlaces.map(place => (
-              <View style={{marginHorizontal: 15, marginVertical: 15}} key={place.id}>
-                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                  <Text style={{fontSize: 16}}>{place.name.length <= 30 ? place.name : place.name.substring(0, 30) + '...' }</Text>
-                  {place.opening_hours && place.opening_hours.open_now != null ? <Text style={{color: place.opening_hours.open_now ? 'green' : 'red', fontSize: 16}}>
-                    {place.opening_hours.open_now ? 'OPEN' : 'CLOSED'}
-                  </Text> : <Text style={{fontSize: 16}}>
-                    NO INFO
-                  </Text>}
-                </View>
-                <View style={{flexDirection: 'row', marginTop: 5}}>
-                  <Image
-                    style={{
-                      width: Metrics.screenWidth * 0.25,
-                      height: Metrics.screenWidth * 0.25
-                    }}
-                    source={{
-                      uri: place.photos && place.photos.length >= 1 && place.photos[0].photo_reference
-                        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${GoogleApiKey}`
-                        : 'https://loremflickr.com/400/400/restaurant,food'
-                    }}
-                    resizeMode='cover'
-                  />
-                  <View style={{marginLeft: 15, flex: 1, justifyContent: 'space-between'}}>
-                    <Text style={{fontSize: 13}}>
-                      {place.vicinity}
-                    </Text>
-                    <TouchableOpacity style={{backgroundColor: Colors.red, justifyContent: 'center', alignItems: 'center'}} onPress={() => { this.props.navigation.navigate('RestaurantDetailsScreen') }}>
-                      <Text style={{color: Colors.snow, textAlign: 'center', padding: 10}}>SEE MORE</Text>
-                    </TouchableOpacity>
+            {this.state.nearbyPlaces.map(place => {
+              var googlePlace = this.state.nearbyGooglePlaces.find(p => p.yelpPlaceId === place.id) != null ? this.state.nearbyGooglePlaces.find(p => p.yelpPlaceId === place.id).place : null
+              return (
+                <View style={{marginHorizontal: 15, marginVertical: 15}} key={place.id}>
+                  <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <Text style={{fontSize: 16}}>{place.name.length <= 30 ? place.name : place.name.substring(0, 30) + '...' }</Text>
+                    {googlePlace && googlePlace.opening_hours && googlePlace.opening_hours.open_now != null ? <Text style={{color: googlePlace.opening_hours.open_now ? 'green' : 'red', fontSize: 16}}>
+                      {googlePlace.opening_hours.open_now ? 'OPEN' : 'CLOSED'}
+                    </Text> : <Text style={{fontSize: 16}}>
+                      NO INFO
+                    </Text>}
+                  </View>
+                  <View style={{flexDirection: 'row', marginTop: 5}}>
+                    <Image
+                      style={{
+                        width: Metrics.screenWidth * 0.25,
+                        height: Metrics.screenWidth * 0.25
+                      }}
+                      source={{
+                        uri: googlePlace && googlePlace.photos && googlePlace.photos.length >= 1 && googlePlace.photos[0].photo_reference
+                          ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${googlePlace.photos[0].photo_reference}&key=${GoogleApiKey}`
+                          : 'https://loremflickr.com/400/400/restaurant,food?lock=1'
+                      }}
+                      resizeMode='cover'
+                    />
+                    <View style={{marginLeft: 15, flex: 1, justifyContent: 'space-between'}}>
+                      <Text style={{fontSize: 13}}>
+                        {googlePlace && googlePlace.formatted_address}
+                      </Text>
+                      <TouchableOpacity style={{backgroundColor: Colors.red, justifyContent: 'center', alignItems: 'center'}} onPress={() => { this.props.navigation.navigate('RestaurantDetailsScreen', { place: place }) }}>
+                        <Text style={{color: Colors.snow, textAlign: 'center', padding: 10}}>SEE MORE</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
-              </View>
-            ))}
+              )
+            })}
           </KeyboardAvoidingView>
         </ScrollView>
       </View>
