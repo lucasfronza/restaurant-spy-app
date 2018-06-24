@@ -106,7 +106,7 @@ class MainScreen extends Component {
                     <Text style={{fontSize: 13}}>
                       {place.vicinity}
                     </Text>
-                    <TouchableOpacity style={{backgroundColor: Colors.red, justifyContent: 'center', alignItems: 'center'}}>
+                    <TouchableOpacity style={{backgroundColor: Colors.red, justifyContent: 'center', alignItems: 'center'}} onPress={() => { this.props.navigation.navigate('RestaurantDetailsScreen') }}>
                       <Text style={{color: Colors.snow, textAlign: 'center', padding: 10}}>SEE MORE</Text>
                     </TouchableOpacity>
                   </View>
