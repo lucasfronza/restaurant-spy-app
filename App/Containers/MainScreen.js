@@ -2,8 +2,6 @@ import React, { Component } from 'react'
 import { ScrollView, View, Image, Text, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native'
 import { connect } from 'react-redux'
 import { Colors, Metrics } from '../Themes'
-// Add Actions - replace 'Your' with whatever your reducer is called :)
-// import YourActions from '../Redux/YourRedux'
 
 // Styles
 import styles from './Styles/MainScreenStyle'
@@ -14,15 +12,16 @@ const YelpApiKey = 'moxxDVrbenac-0BuwwyR-Y9va06TgfQevLDy1xO-aRMpDorSGJiaByFdg5Pf
 class MainScreen extends Component {
   constructor (props) {
     super(props)
-
     this.state = {
       currentLocation: null,
-      nearbyPlaces: [],
       nearbyYelpPlaces: [],
       nearbyGooglePlaces: []
     }
   }
 
+  /*
+   * After mounting, asks for user location
+   */
   componentDidMount () {
     this.getCurrentLocation()
   }
@@ -48,7 +47,7 @@ class MainScreen extends Component {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
           }
-        }, () => { this.getNearbyYelpPlaces() })
+        }, () => { this.getNearbyYelpPlaces() }) // Fetch Nearby Yelp Places if app has user location
       },
       (error) => {
         console.log(error)
@@ -57,6 +56,9 @@ class MainScreen extends Component {
     )
   }
 
+  /*
+   * Fetch nearby places from Yelp
+   */
   getNearbyYelpPlaces = () => {
     fetch(`https://api.yelp.com/v3/businesses/search?latitude=${this.state.currentLocation.latitude}&longitude=${this.state.currentLocation.longitude}&limit=10&radius=15000`, {
       headers: {
@@ -65,9 +67,9 @@ class MainScreen extends Component {
     })
     .then((response) => response.json())
     .then((responseJson) => {
+      // After fetching nearby places from Yelp, try to find a matching Google Place
       this.getNearbyGooglePlaces(responseJson.businesses)
       this.setState({
-        nearbyPlaces: responseJson.businesses,
         nearbyYelpPlaces: responseJson.businesses
       })
     })
@@ -76,6 +78,9 @@ class MainScreen extends Component {
     })
   }
 
+  /*
+   * Try to find a matching Google Place for each Yelp Place
+   */
   getNearbyGooglePlaces = async (businesses) => {
     var nearbyGooglePlaces = []
     await Promise.all(businesses.map(async place => {
@@ -99,7 +104,8 @@ class MainScreen extends Component {
         </View>
         <ScrollView>
           <KeyboardAvoidingView behavior='position'>
-            {this.state.nearbyPlaces.map(yelpPlace => {
+            {this.state.nearbyYelpPlaces.map(yelpPlace => {
+              // Get from the state the matched Google Place for current Yelp Place
               var googlePlace = this.state.nearbyGooglePlaces.find(p => p.yelpPlaceId === yelpPlace.id) != null ? this.state.nearbyGooglePlaces.find(p => p.yelpPlaceId === yelpPlace.id).place : null
               return (
                 <View style={{marginHorizontal: 15, marginVertical: 15}} key={yelpPlace.id}>
@@ -123,7 +129,7 @@ class MainScreen extends Component {
                       source={{
                         uri: googlePlace && googlePlace.photos && googlePlace.photos.length >= 1 && googlePlace.photos[0].photo_reference
                           ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${googlePlace.photos[0].photo_reference}&key=${GoogleApiKey}`
-                          : 'https://loremflickr.com/400/400/restaurant,food?lock=1'
+                          : 'https://loremflickr.com/400/400/restaurant,food?lock=1' // placeholder if there is no photo on Google place
                       }}
                       resizeMode='cover'
                     />

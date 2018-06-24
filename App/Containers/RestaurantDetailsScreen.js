@@ -2,8 +2,6 @@ import React, { Component } from 'react'
 import { ScrollView, View, Image, Text, KeyboardAvoidingView, ActivityIndicator } from 'react-native'
 import { connect } from 'react-redux'
 import { Colors, Metrics } from '../Themes'
-// Add Actions - replace 'Your' with whatever your reducer is called :)
-// import YourActions from '../Redux/YourRedux'
 
 // Styles
 import styles from './Styles/RestaurantDetailsScreenStyle'
@@ -26,12 +24,18 @@ class RestaurantDetailsScreen extends Component {
     }
   }
 
+  /*
+   * Fetch all necessary data
+   */
   componentDidMount () {
     this.getGooglePlaceDetail()
     this.getYelpPlaceDetail()
     this.getYelpPlaceReviews()
   }
 
+  /*
+   * Get more datails of current place from Google
+   */
   getGooglePlaceDetail = () => {
     fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${this.state.googlePlace.place_id}&key=${GoogleApiKey}`)
     .then((response) => response.json())
@@ -47,6 +51,9 @@ class RestaurantDetailsScreen extends Component {
     })
   }
 
+  /*
+   * Get more datails of current place from Yelp
+   */
   getYelpPlaceDetail = () => {
     fetch(`https://api.yelp.com/v3/businesses/${this.state.yelpPlace.id}`, {
       headers: {
@@ -64,6 +71,9 @@ class RestaurantDetailsScreen extends Component {
     })
   }
 
+  /*
+   * Get reviews of current place from Yelp
+   */
   getYelpPlaceReviews = () => {
     fetch(`https://api.yelp.com/v3/businesses/${this.state.yelpPlace.id}/reviews`, {
       headers: {
@@ -89,26 +99,26 @@ class RestaurantDetailsScreen extends Component {
         </View>
         <ScrollView>
           <KeyboardAvoidingView behavior='position'>
-            <View style={{}}>
+            <View>
               <Text style={styles.sectionTitle}>ADDRESS</Text>
               <Text style={{flex: 1, marginHorizontal: 15}}>
                 {this.state.googlePlace.formatted_address}
               </Text>
             </View>
-            <View style={{}}>
+            <View>
               <Text style={styles.sectionTitle}>ABOUT</Text>
               {this.state.googlePlaceDetail && this.state.yelpPlaceDetail
                 ? <View style={{marginHorizontal: 15}}>
-                  <Text style={{}}>
-                    <Text style={{fontWeight: 'bold'}}>Website: </Text>{this.state.googlePlaceDetail.website}
+                  <Text>
+                    <Text style={{fontWeight: 'bold'}}>Website: </Text>{this.state.googlePlaceDetail.website || 'not provided'}
                   </Text>
-                  <Text style={{}}>
-                    <Text style={{fontWeight: 'bold'}}>Phone: </Text>{this.state.yelpPlaceDetail.display_phone}
+                  <Text>
+                    <Text style={{fontWeight: 'bold'}}>Phone: </Text>{this.state.yelpPlaceDetail.display_phone || 'not provided'}
                   </Text>
                 </View>
                 : <ActivityIndicator size='large' color={Colors.red} />}
             </View>
-            <View style={{}}>
+            <View>
               <Text style={styles.sectionTitle}>REVIEWS</Text>
               {this.state.googlePlaceDetail && this.state.yelpPlaceDetail
                 ? <View>
@@ -151,7 +161,7 @@ class RestaurantDetailsScreen extends Component {
                 </View>
                 : <ActivityIndicator size='large' color={Colors.red} />}
             </View>
-            <View style={{}}>
+            <View style={{marginBottom: 20}}>
               <Text style={styles.sectionTitle}>PICTURES</Text>
               {this.state.googlePlaceDetail
                 ? <View>
