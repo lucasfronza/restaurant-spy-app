@@ -26,8 +26,6 @@ class MainScreen extends Component {
 
   componentDidMount () {
     this.getCurrentLocation()
-    // this.getNearbyPlaces()
-    this.getNearbyYelpPlaces()
   }
 
   getCurrentLocation = () => {
@@ -51,7 +49,7 @@ class MainScreen extends Component {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
           }
-        })
+        }, () => { this.getNearbyYelpPlaces() })
       },
       (error) => {
         console.log(error)
@@ -60,24 +58,8 @@ class MainScreen extends Component {
     )
   }
 
-  getNearbyPlaces = () => {
-    fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-23.582132,-46.700234&rankby=distance&type=restaurant&key=${GoogleApiKey}`)
-    .then((response) => response.json())
-    .then((responseJson) => {
-      console.tron.log(responseJson)
-      if (responseJson.status === 'OK') {
-        this.setState({
-          nearbyPlaces: responseJson.results
-        })
-      }
-    })
-    .catch((error) => {
-      console.error(error)
-    })
-  }
-
   getNearbyYelpPlaces = () => {
-    fetch(`https://api.yelp.com/v3/businesses/search?latitude=-23.582132&longitude=-46.700234&limit=5`, {
+    fetch(`https://api.yelp.com/v3/businesses/search?latitude=${this.state.currentLocation.latitude}&longitude=${this.state.currentLocation.longitude}&limit=10&radius=15000`, {
       headers: {
         Authorization: `Bearer ${YelpApiKey}`
       }
@@ -132,9 +114,9 @@ class MainScreen extends Component {
                       NO INFO
                     </Text>}
                   </View>
-                  <View style={{flexDirection: 'row', marginTop: 5}}>
+                  <ScrollView horizontal style={{flexDirection: 'row', marginTop: 5}}>
                     {yelpPlace.categories.map(category => (<View style={{backgroundColor: '#A7A7A7', padding: 3, borderRadius: 3, marginRight: 5}} key={category.alias}><Text style={{color: Colors.snow}}>{category.title}</Text></View>))}
-                  </View>
+                  </ScrollView>
                   <View style={{flexDirection: 'row', marginTop: 5}}>
                     <Image
                       style={{
